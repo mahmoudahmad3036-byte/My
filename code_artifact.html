@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>محمود & دكتورة مريم | حكاية حبنا 💖</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts (Cairo & Tajawal) -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&family=Tajawal:wght@400;500;700;900&family=Reenie+Beanie&display=swap" rel="stylesheet">
+    <!-- Canvas Confetti Library -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        burgundy: '#4A0E17',
+                        deeprose: '#800A28',
+                        softpink: '#FFB6C1',
+                        rosegold: '#E8C39E',
+                        medicalblue: '#1e3a8a',
+                    },
+                    fontFamily: {
+                        cairo: ['Cairo', 'sans-serif'],
+                        tajawal: ['Tajawal', 'sans-serif'],
+                        hand: ['Reenie Beanie', 'cursive'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: 'Tajawal', 'Cairo', sans-serif;
+            background: linear-gradient(135deg, #1a0307 0%, #2b080e 40%, #4a0e17 70%, #150206 100%);
+            color: #fff;
+            overflow-x: hidden;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* Canvas Particle Background */
+        #heartCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        /* Glassmorphism Effect */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 182, 193, 0.18);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+
+        .glass-card-hover {
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        @media (min-width: 768px) {
+            .glass-card-hover:hover {
+                transform: translateY(-8px) scale(1.02);
+                border-color: rgba(255, 182, 193, 0.4);
+                box-shadow: 0 15px 35px rgba(232, 121, 249, 0.2);
+            }
+        }
+
+        /* Prescription Card Styling (تحفة بدون تغيير) */
+        .rx-card {
+            background: #fdfbf7;
+            color: #1a1a1a;
+            background-image: radial-gradient(#e5e7eb 1px, transparent 1px);
+            background-size: 16px 16px;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #1a0307;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #800A28;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #ffb6c1;
+        }
+
+        /* Animations */
+        @keyframes pulseGlow {
+            0%, 100% { opacity: 0.8; transform: scale(1); filter: drop-shadow(0 0 15px rgba(255, 182, 193, 0.6)); }
+            50% { opacity: 1; transform: scale(1.05); filter: drop-shadow(0 0 25px rgba(255, 105, 180, 0.9)); }
+        }
+
+        .heart-glow {
+            animation: pulseGlow 3s infinite ease-in-out;
+        }
+
+        /* Flip Card Effect */
+        .perspective-1000 {
+            perspective: 1000px;
+        }
+        .transform-style-3d {
+            transform-style: preserve-3d;
+            transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .flip-card-flipped {
+            transform: rotateY(180deg);
+        }
+        .backface-hidden {
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+        }
+        .rotate-y-180 {
+            transform: rotateY(180deg);
+        }
+    </style>
+</head>
+<body class="min-h-screen relative pb-12 selection:bg-rose-500 selection:text-white">
+
+    <!-- Floating Background Canvas -->
+    <canvas id="heartCanvas"></canvas>
+
+    <!-- Floating Music Controls (Optimized for Mobile) -->
+    <div class="fixed top-3 left-3 md:top-5 md:left-5 z-50">
+        <button id="musicToggleBtn" class="glass-card px-3 py-2 md:px-4 md:py-3 rounded-full flex items-center gap-2 md:gap-3 text-pink-200 hover:text-white hover:bg-rose-900/40 transition-all border border-pink-500/30 shadow-lg active:scale-95 text-xs md:text-sm">
+            <i id="musicIcon" class="fas fa-music text-pink-400"></i>
+            <span id="musicText" class="font-medium">النغمات الرومانسية</span>
+        </button>
+    </div>
+
+    <!-- Main Container -->
+    <div class="relative z-10 max-w-5xl mx-auto px-3 sm:px-6 pt-14 md:pt-10">
+
+        <!-- HEADER / HERO SECTION -->
+        <header class="text-center my-6 md:my-12">
+            <div class="inline-block px-4 py-2 rounded-full glass-card border border-pink-500/30 text-pink-300 text-xs md:text-base mb-4 animate-bounce">
+                ✨ احتفالنا الشهري بعيد تعارفنا (25 نوفمبر 2026) ✨
+            </div>
+            
+            <h1 class="text-3xl sm:text-5xl md:text-7xl font-black font-cairo text-transparent bg-clip-text bg-gradient-to-r from-pink-200 via-rose-300 to-red-400 mb-3 leading-tight px-2">
+                محمود ❤️ الدكتورة مريم
+            </h1>
+            
+            <p class="text-gray-300 text-sm sm:text-lg md:text-xl max-w-2xl mx-auto font-light leading-relaxed px-3">
+                كل شهر بنحتفل بعيد تعارفنا الجميل من يوم <span class="text-pink-300 font-semibold">25-05-2024</span>.. والنهاردة 25-11-2026 ذكَرانا الشهرية الـ 30!
+            </p>
+
+            <!-- 2.5 Years Milestone Banner -->
+            <div class="mt-4 max-w-lg mx-auto bg-gradient-to-r from-pink-500/20 via-rose-500/30 to-pink-500/20 border border-pink-400/40 rounded-full py-2 px-4 text-xs sm:text-sm text-pink-200 font-bold flex items-center justify-center gap-2 shadow-lg">
+                <i class="fas fa-heart text-rose-400 animate-pulse"></i>
+                <span>فاضلنا شهر واحد بس ونكمل "سنتين ونصف" سوا على الحلوة والمرة! 💖</span>
+                <i class="fas fa-heart text-rose-400 animate-pulse"></i>
+            </div>
+
+            <!-- Counter Box -->
+            <div class="mt-8 p-4 sm:p-6 md:p-8 glass-card rounded-3xl border border-rose-500/30 max-w-3xl mx-auto shadow-2xl relative overflow-hidden">
+                <div class="absolute -top-10 -right-10 w-32 h-32 bg-rose-600/20 rounded-full blur-2xl"></div>
+                <h3 class="text-pink-200 text-xs sm:text-base font-semibold mb-4 sm:mb-6 flex items-center justify-center gap-2">
+                    <i class="fas fa-heart text-rose-500"></i>
+                    مع بعض بكل حب وثانية بثانية بقالنا:
+                    <i class="fas fa-heart text-rose-500"></i>
+                </h3>
+                
+                <div class="grid grid-cols-4 gap-2 sm:gap-4 text-center" id="loveCounter">
+                    <div class="bg-black/30 p-2 sm:p-4 rounded-xl sm:rounded-2xl border border-pink-500/20">
+                        <span id="days" class="text-xl sm:text-3xl md:text-5xl font-black font-cairo text-pink-400 block">00</span>
+                        <span class="text-[10px] sm:text-xs md:text-sm text-gray-300 font-medium">يوم</span>
+                    </div>
+                    <div class="bg-black/30 p-2 sm:p-4 rounded-xl sm:rounded-2xl border border-pink-500/20">
+                        <span id="hours" class="text-xl sm:text-3xl md:text-5xl font-black font-cairo text-rose-300 block">00</span>
+                        <span class="text-[10px] sm:text-xs md:text-sm text-gray-300 font-medium">ساعة</span>
+                    </div>
+                    <div class="bg-black/30 p-2 sm:p-4 rounded-xl sm:rounded-2xl border border-pink-500/20">
+                        <span id="minutes" class="text-xl sm:text-3xl md:text-5xl font-black font-cairo text-pink-300 block">00</span>
+                        <span class="text-[10px] sm:text-xs md:text-sm text-gray-300 font-medium">دقيقة</span>
+                    </div>
+                    <div class="bg-black/30 p-2 sm:p-4 rounded-xl sm:rounded-2xl border border-pink-500/20">
+                        <span id="seconds" class="text-xl sm:text-3xl md:text-5xl font-black font-cairo text-rose-400 block">00</span>
+                        <span class="text-[10px] sm:text-xs md:text-sm text-gray-300 font-medium">ثانية</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- SPECIAL COUNTDOWN BANNER FOR MONTHLY LOVE DAY (NOV 27) -->
+        <section class="my-8 text-center px-1">
+            <div class="p-4 sm:p-6 rounded-2xl bg-gradient-to-r from-rose-950/90 via-burgundy to-rose-950/90 border border-rose-500/40 shadow-xl flex flex-col md:flex-row items-center justify-between gap-3 text-right">
+                <div class="flex items-center gap-3 sm:gap-4">
+                    <div class="p-3 sm:p-4 rounded-2xl bg-rose-600/20 text-pink-400 text-2xl sm:text-3xl heart-glow shrink-0">
+                        <i class="fas fa-sparkles"></i>
+                    </div>
+                    <div>
+                        <h4 class="text-base sm:text-xl font-bold text-pink-200">باقي يومين بس على احتفالنا الشهري بعيد حبنا! 💕</h4>
+                        <p class="text-xs sm:text-sm text-gray-300 mt-1">ذكرى الاعتراف بالحب ليلة 27 مايو 2024 اللي بنحتفل بيها كل يوم 27 في الشهر!</p>
+                    </div>
+                </div>
+                <div class="w-full md:w-auto px-4 py-2 rounded-xl bg-pink-500/20 text-pink-300 border border-pink-400/30 text-xs sm:text-sm font-semibold text-center whitespace-nowrap">
+                    27 نوفمبر 2026 💖
+                </div>
+            </div>
+        </section>
+
+
+        <!-- 5 CREATIVE INTERACTIVE SECTIONS -->
+        <div class="space-y-10 md:space-y-16 my-10">
+
+            <!-- IDEA 1: UPDATED STORY WITH "ME TOO 😂" AND "I KNOW 😂" -->
+            <section class="glass-card rounded-3xl p-4 sm:p-8 md:p-10 border border-pink-500/20 shadow-2xl">
+                <div class="text-center mb-6">
+                    <span class="text-[10px] sm:text-xs uppercase tracking-widest text-pink-400 font-bold">الفكرة الأولى ✨</span>
+                    <h2 class="text-xl sm:text-3xl md:text-4xl font-bold text-rose-200 mt-1">قصة الضحكة وشرارة الحب ⚡</h2>
+                    <p class="text-gray-400 text-xs sm:text-sm mt-1">اضغطي على البطاقة عشان تفتكري الحوار التاريخي بينا!</p>
+                </div>
+
+                <div class="perspective-1000 max-w-2xl mx-auto h-[380px] sm:h-[340px] md:h-[320px] cursor-pointer group" onclick="toggleStoryFlip(this)">
+                    <div id="storyCardInner" class="transform-style-3d w-full h-full relative rounded-2xl duration-700">
+                        
+                        <!-- FRONT SIDE -->
+                        <div class="absolute inset-0 w-full h-full glass-card bg-gradient-to-br from-rose-900/70 to-black/90 rounded-2xl p-6 sm:p-8 flex flex-col items-center justify-center text-center border border-pink-500/30 backface-hidden shadow-xl">
+                            <div class="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-pink-500/20 flex items-center justify-center text-2xl sm:text-3xl text-pink-300 mb-3 animate-pulse">
+                                <i class="fas fa-envelope-open-text"></i>
+                            </div>
+                            <h3 class="text-lg sm:text-2xl font-bold text-pink-200 mb-2">صباح 27 مايو 2024 المميزة</h3>
+                            <p class="text-gray-300 text-xs sm:text-sm max-w-md leading-relaxed">كنتي زعلانة و متضايقة، ومحمود مش يهون عليه زعل الدكتورة أبداً.. فاكرة الموقف الحاد اللي اتغير بسببه كل حاجة؟</p>
+                            <span class="mt-5 px-4 py-2 bg-pink-600/30 hover:bg-pink-600/50 rounded-full text-xs text-pink-200 font-medium transition-colors border border-pink-400/30">
+                                اضغطي هنا لمشاهدة تفاصيل الذكرى 👈
+                            </span>
+                        </div>
+
+                        <!-- BACK SIDE -->
+                        <div class="absolute inset-0 w-full h-full glass-card bg-gradient-to-bl from-burgundy via-rose-950 to-black rounded-2xl p-5 sm:p-8 flex flex-col items-center justify-center text-center border border-pink-400/50 backface-hidden rotate-y-180 shadow-2xl">
+                            <i class="fas fa-quote-right text-pink-400/30 text-3xl mb-1"></i>
+                            <p class="text-sm sm:text-base md:text-lg text-pink-100 font-medium leading-relaxed mb-3">
+                                قولتلك وأنتي زعلانة: <span class="text-pink-300 font-bold">"أضحكك؟"</span>.. وقولتلك: <span class="text-rose-400 font-black">"بحبك!"</span>❤️
+                            </p>
+                            <div class="p-3 rounded-xl bg-black/40 border border-pink-500/20 my-1 w-full max-w-md text-xs sm:text-sm text-pink-200 leading-relaxed font-semibold">
+                                <p class="mb-1">ضحكتي بضحكتك الجميلة وقولتيلي: <span class="text-yellow-300 font-bold">"Me too 😂"</span></p>
+                                <p>فرديت عليكي علطول بابتسامة: <span class="text-yellow-300 font-bold">"I know 😂"</span></p>
+                            </div>
+                            <p class="text-[11px] sm:text-xs text-gray-300 leading-relaxed max-w-lg mt-2">
+                                وإحنا بنضحك أحلى ضحكة في حياتنا والحب مالي عيوننا.. ومن الساعات دي وإحنا إيد في إيد على الحلوة والمرة وبنسند بعض! ✨
+                            </p>
+                        </div>
+
+                    </div>
+                </div>
+            </section>
+
+
+            <!-- IDEA 2: ROCHETA DOCTOR MARYAM (Doctor's Prescription - Unchanged Design) -->
+            <section class="glass-card rounded-3xl p-4 sm:p-8 md:p-10 border border-pink-500/20 shadow-2xl">
+                <div class="text-center mb-6">
+                    <span class="text-[10px] sm:text-xs uppercase tracking-widest text-pink-400 font-bold">الفكرة الثانية 🩺</span>
+                    <h2 class="text-xl sm:text-3xl md:text-4xl font-bold text-rose-200 mt-1">روشتة علاج القلوب - دكتورة مريم 💉</h2>
+                    <p class="text-gray-400 text-xs sm:text-sm mt-1">الروشتة الطبية الرسمية الصادرة من عيادة الدكتورة المستقبلية</p>
+                </div>
+
+                <div class="max-w-2xl mx-auto rx-card rounded-2xl p-5 sm:p-8 shadow-2xl border-2 border-rose-300 text-gray-800 relative overflow-hidden font-tajawal">
+                    <!-- Medical Watermark -->
+                    <div class="absolute -left-10 -bottom-10 text-gray-200/40 text-8xl sm:text-9xl font-black pointer-events-none select-none">
+                        Rx
+                    </div>
+
+                    <!-- Prescription Header -->
+                    <div class="flex justify-between items-start border-b-2 border-rose-800/30 pb-4 mb-4 sm:mb-6">
+                        <div>
+                            <h3 class="text-lg sm:text-2xl font-black text-rose-900 flex items-center gap-2">
+                                <i class="fas fa-user-md text-rose-700"></i>
+                                د. مريم (دكتورة المستقبل)
+                            </h3>
+                            <p class="text-[11px] sm:text-xs text-gray-600 mt-1">أخصائية جراحة القلوب وجلب السعادة والابتسامة ❤️</p>
+                            <p class="text-[11px] sm:text-xs text-rose-800 font-semibold mt-0.5">طالبة بالصف الثالث الثانوي - قسم علمي علوم 🩺</p>
+                        </div>
+                        <div class="text-left font-mono text-[10px] sm:text-xs text-gray-600">
+                            <div>التاريخ: 25/11/2026</div>
+                            <div>الاسم: محمود</div>
+                            <div class="text-rose-700 font-bold mt-0.5">الحالة: عاشق جداً</div>
+                        </div>
+                    </div>
+
+                    <!-- Prescription Body -->
+                    <div class="space-y-3 sm:space-y-4 my-4 sm:my-6 text-xs sm:text-base font-medium text-gray-800">
+                        <div class="flex items-start gap-2 sm:gap-3">
+                            <span class="text-rose-700 text-base sm:text-lg font-black">Rx 1:</span>
+                            <div>
+                                <strong class="text-rose-950 block">جرعة حب نقي (Eternal Love 1000mg)</strong>
+                                <span class="text-[11px] sm:text-xs text-gray-600">تؤخذ يومياً وبدون توقف، تزيد تدريجياً مدى الحياة.</span>
+                            </div>
+                        </div>
+
+                        <div class="flex items-start gap-2 sm:gap-3">
+                            <span class="text-rose-700 text-base sm:text-lg font-black">Rx 2:</span>
+                            <div>
+                                <strong class="text-rose-950 block">حضن وضحكة صافية من القلب</strong>
+                                <span class="text-[11px] sm:text-xs text-gray-600">عند الشعور بتعب أو ضغط ذاكرة الثانوية العامة.</span>
+                            </div>
+                        </div>
+
+                        <div class="flex items-start gap-2 sm:gap-3">
+                            <span class="text-rose-700 text-base sm:text-lg font-black">Rx 3:</span>
+                            <div>
+                                <strong class="text-rose-950 block">حقنة ثقة ودعم مطلقة في الثانوية العامة 🎓</strong>
+                                <span class="text-[11px] sm:text-xs text-gray-600">عشان الدكتورة مريم هتحقق حلمها وهتدخل كلية الطب وبأعلى المجموع!</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Prescription Footer -->
+                    <div class="border-t-2 border-dashed border-gray-300 pt-3 sm:pt-4 mt-4 sm:mt-6 flex justify-between items-end">
+                        <div class="text-[10px] sm:text-xs text-gray-500">
+                            * تحذير: هذه الروشتة غير قابلة للإلغاء مدى الحياة.
+                        </div>
+                        <div class="text-center">
+                            <div class="font-hand text-xl sm:text-2xl text-rose-800 font-bold transform -rotate-6">Dr. Maryam</div>
+                            <div class="text-[9px] sm:text-[10px] text-gray-500">توقيع الدكتورة</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+
+            <!-- IDEA 3: TIMELINE -->
+            <section class="glass-card rounded-3xl p-4 sm:p-8 md:p-10 border border-pink-500/20 shadow-2xl">
+                <div class="text-center mb-8">
+                    <span class="text-[10px] sm:text-xs uppercase tracking-widest text-pink-400 font-bold">الفكرة الثالثة ⏳</span>
+                    <h2 class="text-xl sm:text-3xl md:text-4xl font-bold text-rose-200 mt-1">محطات رحلتنا ومستقبلنا المشرق 🚀</h2>
+                    <p class="text-gray-400 text-xs sm:text-sm mt-1">من أول يوم اتعرفنا فيه لغاية تحقيق الحلم سوا!</p>
+                </div>
+
+                <div class="relative border-r-2 border-rose-500/40 mr-2 sm:mr-6 md:mr-32 space-y-6 sm:space-y-8">
+                    
+                    <!-- Item 1 -->
+                    <div class="relative pr-6 sm:pr-8 group">
+                        <div class="absolute -right-[11px] top-1 w-5 h-5 rounded-full bg-rose-500 border-4 border-burgundy"></div>
+                        <div class="glass-card p-4 sm:p-5 rounded-2xl border border-pink-500/20 glass-card-hover">
+                            <span class="text-[10px] sm:text-xs font-mono text-pink-300 font-bold bg-pink-900/40 px-2.5 py-1 rounded-full">25 مايو 2024</span>
+                            <h4 class="text-base sm:text-lg font-bold text-pink-100 mt-2">بداية التعارف الأجمل ❤️</h4>
+                            <p class="text-xs sm:text-sm text-gray-300 mt-1">اليوم التاريخي اللي اتعرفت فيه على مريم وبقينا بنحتفل باليوم ده كل شهر من ساعتها!</p>
+                        </div>
+                    </div>
+
+                    <!-- Item 2 -->
+                    <div class="relative pr-6 sm:pr-8 group">
+                        <div class="absolute -right-[11px] top-1 w-5 h-5 rounded-full bg-pink-400 border-4 border-burgundy"></div>
+                        <div class="glass-card p-4 sm:p-5 rounded-2xl border border-pink-500/20 glass-card-hover">
+                            <span class="text-[10px] sm:text-xs font-mono text-pink-300 font-bold bg-pink-900/40 px-2.5 py-1 rounded-full">27 مايو 2024</span>
+                            <h4 class="text-base sm:text-lg font-bold text-pink-100 mt-2">عيد حبنا المعتاد "أضحكك؟ بحبك" ✨</h4>
+                            <p class="text-xs sm:text-sm text-gray-300 mt-1">يوم الاعتراف الشهير ومقلب "Me too 😂" و "I know 😂" وشرارة الحب البراقة اللي بنحتفل بيها يوم 27 من كل شهر.</p>
+                        </div>
+                    </div>
+
+                    <!-- Item 3 -->
+                    <div class="relative pr-6 sm:pr-8 group">
+                        <div class="absolute -right-[11px] top-1 w-5 h-5 rounded-full bg-purple-400 border-4 border-burgundy"></div>
+                        <div class="glass-card p-4 sm:p-5 rounded-2xl border border-purple-500/20 glass-card-hover">
+                            <span class="text-[10px] sm:text-xs font-mono text-purple-300 font-bold bg-purple-900/40 px-2.5 py-1 rounded-full">25 نوفمبر 2026 (النهاردة)</span>
+                            <h4 class="text-base sm:text-lg font-bold text-purple-200 mt-2">رحلة تالتة ثانوي وسنتين ونصف سوا 📚</h4>
+                            <p class="text-xs sm:text-sm text-gray-300 mt-1">بنسند بعض في الصعب والقوي، وفاضلنا شهر واحد بس ونكمل سنتين ونصف مع بعض على الحلوة والمرة!</p>
+                        </div>
+                    </div>
+
+                    <!-- Item 4 (Future) -->
+                    <div class="relative pr-6 sm:pr-8 group">
+                        <div class="absolute -right-[11px] top-1 w-5 h-5 rounded-full bg-yellow-400 border-4 border-burgundy"></div>
+                        <div class="glass-card p-4 sm:p-5 rounded-2xl border border-yellow-500/30 glass-card-hover bg-gradient-to-l from-yellow-900/20 to-transparent">
+                            <span class="text-[10px] sm:text-xs font-mono text-yellow-300 font-bold bg-yellow-900/40 px-2.5 py-1 rounded-full">المستقبل القريب 🩺🎓</span>
+                            <h4 class="text-base sm:text-lg font-bold text-yellow-200 mt-2">تخرج الدكتورة مريم وبداية حياتنا 💍</h4>
+                            <p class="text-xs sm:text-sm text-gray-300 mt-1">اليوم اللي هشوفك فيه بالبالطو الأبيض وأكبر دكتورة شاطرة في الدنيا، وهنحقق كل اللي حلمنا بيه!</p>
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+
+
+            <!-- IDEA 4: LOVE REASON GENERATOR -->
+            <section class="glass-card rounded-3xl p-4 sm:p-8 md:p-10 border border-pink-500/20 shadow-2xl text-center">
+                <div class="mb-4 sm:mb-6">
+                    <span class="text-[10px] sm:text-xs uppercase tracking-widest text-pink-400 font-bold">الفكرة الرابعة 🎁</span>
+                    <h2 class="text-xl sm:text-3xl md:text-4xl font-bold text-rose-200 mt-1">زرار مفاجآت الحب للدكتورة 💖</h2>
+                    <p class="text-gray-400 text-xs sm:text-sm mt-1">اضغطي على الزرار وشوفي محمود بيحبك ليه وقالي عنك إيه!</p>
+                </div>
+
+                <div class="max-w-xl mx-auto my-6 sm:my-8">
+                    <div id="loveReasonBox" class="p-5 sm:p-8 rounded-2xl bg-black/40 border border-pink-500/30 min-h-[120px] sm:min-h-[140px] flex items-center justify-center text-pink-100 text-sm sm:text-lg md:text-xl font-medium transition-all shadow-inner">
+                        "اضغطي على الزرار بالأسفل يا دكتورة مريم لتكتشفي السر! ✨"
+                    </div>
+
+                    <button onclick="generateLoveReason()" class="mt-5 px-6 sm:px-8 py-3.5 sm:py-4 rounded-full bg-gradient-to-r from-pink-600 via-rose-600 to-red-600 hover:from-pink-500 hover:to-red-500 text-white font-bold text-sm sm:text-lg shadow-lg hover:shadow-pink-500/50 transition-all active:scale-95 flex items-center gap-2 sm:gap-3 mx-auto">
+                        <i class="fas fa-magic"></i>
+                        <span>اضغطي هنا يا دكتورة مريم!</span>
+                    </button>
+                </div>
+            </section>
+
+
+            <!-- IDEA 5: HIGH SCHOOL SUCCESS WISH BOARD -->
+            <section class="glass-card rounded-3xl p-4 sm:p-8 md:p-10 border border-pink-500/20 shadow-2xl">
+                <div class="text-center mb-6 sm:mb-8">
+                    <span class="text-[10px] sm:text-xs uppercase tracking-widest text-pink-400 font-bold">الفكرة الخامسة 🎓</span>
+                    <h2 class="text-xl sm:text-3xl md:text-4xl font-bold text-rose-200 mt-1">لوحة دعم الثانوية العامة 📖</h2>
+                    <p class="text-gray-400 text-xs sm:text-sm mt-1">رسائل وعهد الدعم المستمر في رحلتنا في تالتة ثانوي سوا</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
+                    <div class="glass-card p-5 rounded-2xl border border-pink-500/20 text-center glass-card-hover">
+                        <div class="w-10 h-10 sm:w-12 sm:h-12 mx-auto rounded-full bg-rose-500/20 flex items-center justify-center text-rose-300 text-xl sm:text-2xl mb-3">
+                            <i class="fas fa-brain"></i>
+                        </div>
+                        <h3 class="text-base sm:text-lg font-bold text-pink-200 mb-1.5">شطارة وتفوق</h3>
+                        <p class="text-xs text-gray-300 leading-relaxed">أنا واثق في ذكائك وتعبك.. أنتي قدها وهتجيبي أعلى مجموع يفرحنا كلنا يارب!</p>
+                    </div>
+
+                    <div class="glass-card p-5 rounded-2xl border border-pink-500/20 text-center glass-card-hover">
+                        <div class="w-10 h-10 sm:w-12 sm:h-12 mx-auto rounded-full bg-pink-500/20 flex items-center justify-center text-pink-300 text-xl sm:text-2xl mb-3">
+                            <i class="fas fa-hands-holding-circle"></i>
+                        </div>
+                        <h3 class="text-base sm:text-lg font-bold text-pink-200 mb-1.5">ظهر وسند دائماً</h3>
+                        <p class="text-xs text-gray-300 leading-relaxed">وقت ما تحسي بضغط أو تعب، افتكري دايماً إن محمود جمبك وبيدعمك بكل طاقته.</p>
+                    </div>
+
+                    <div class="glass-card p-5 rounded-2xl border border-pink-500/20 text-center glass-card-hover">
+                        <div class="w-10 h-10 sm:w-12 sm:h-12 mx-auto rounded-full bg-purple-500/20 flex items-center justify-center text-purple-300 text-xl sm:text-2xl mb-3">
+                            <i class="fas fa-stethoscope"></i>
+                        </div>
+                        <h3 class="text-base sm:text-lg font-bold text-pink-200 mb-1.5">الحلم بيكبر</h3>
+                        <p class="text-xs text-gray-300 leading-relaxed">مش بقولك غير "دكتورة مريم" لأن ده مكانك الطبيعي اللي مستنيكي وإن شاء الله قريب أوي هتكوني فيه!</p>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+
+
+        <!-- GRAND FINALE MESSAGE FROM MAHMOUD -->
+        <section class="my-12 sm:my-20">
+            <div class="glass-card rounded-3xl p-5 sm:p-8 md:p-12 border-2 border-rose-500/40 relative overflow-hidden shadow-2xl">
+                <div class="absolute top-0 right-0 w-32 sm:w-40 h-32 sm:h-40 bg-pink-500/10 rounded-full blur-3xl"></div>
+                <div class="absolute bottom-0 left-0 w-32 sm:w-40 h-32 sm:h-40 bg-rose-600/10 rounded-full blur-3xl"></div>
+
+                <div class="text-center mb-6">
+                    <span class="text-2xl sm:text-3xl text-pink-400">💌</span>
+                    <h2 class="text-2xl sm:text-4xl md:text-5xl font-black font-cairo text-transparent bg-clip-text bg-gradient-to-r from-pink-200 via-rose-300 to-pink-400 mt-1">
+                        رسالة من قلبي لقلبك يا دكتورتي
+                    </h2>
+                </div>
+
+                <div class="max-w-3xl mx-auto space-y-4 sm:space-y-6 text-sm sm:text-base md:text-lg text-gray-200 leading-relaxed font-light text-justify md:text-center px-1">
+                    <p>
+                        حبيبتي ونور عيني وشريكة الرحلة <strong class="text-pink-300 font-bold">دكتورة مريم</strong>،
+                    </p>
+                    <p>
+                        النهاردة <span class="text-pink-300 font-semibold">25 نوفمبر 2026</span>، وبنحتفل بعيد تعارفنا الشهري الجميل اللي بدأ يوم <span class="text-pink-300 font-semibold">25 مايو 2024</span>. وفاضلنا شهر واحد بس ونكمل أجمل سنتين ونصف مع بعض على الحلوة والمرة!
+                    </p>
+                    <p>
+                        وبعد يومين بس، هنحتفل كعادتنا كل شهر بعيد حبنا يوم <span class="text-pink-300 font-semibold">27</span>، الذكرى اللي فاكر كل تفصيلة فيها ليلة 27 مايو 2024، لما قولتلك وأنتي زعلانة: <em class="text-rose-300 font-semibold">"أضحكك؟ بحبك"</em>.. وضحكتي بضحكتك اللي بتنور دنيتي وقولتيلي: <span class="text-yellow-300 font-bold">"Me too 😂"</span>، فترد روحي بابتسامة وأقولك: <span class="text-yellow-300 font-bold">"I know 😂"</span> وشرارة الحب تلمع في عيوننا!
+                    </p>
+                    <p>
+                        إحنا النهاردة مع بعض في تالتة ثانوي، بنعافر وبنسند بعض في كل لحظة.. وأنا أوعدك إني هفضل دايماً ظهرك وسندك ومش هسيب إيدك أبداً. ومستني اليوم اللي هقف فيه وأنا فخور بيكي وأنتي لابسة البالطو الأبيض وبتقالي يا دكتورة مريم!
+                    </p>
+                    <p class="text-pink-300 font-semibold text-base sm:text-xl pt-2 text-center">
+                        كل شهر وأنتي حبيبتي، وكل سنة وأنتي دكتورتي وأجمل نعم حياتي ❤️
+                    </p>
+                </div>
+
+                <div class="mt-8 sm:mt-10 text-center border-t border-pink-500/20 pt-6 sm:pt-8">
+                    <div class="text-xs sm:text-sm text-gray-400 mb-1">بحبك لأخر العمر،</div>
+                    <div class="text-2xl sm:text-3xl font-bold font-cairo text-pink-300">حبيبك / محمود 💖</div>
+
+                    <button onclick="triggerLoveExplosion()" class="mt-6 sm:mt-8 px-6 sm:px-10 py-3.5 sm:py-4 rounded-full bg-gradient-to-r from-rose-600 to-pink-600 hover:from-rose-500 hover:to-pink-500 text-white font-bold text-sm sm:text-lg shadow-xl shadow-rose-900/50 transition-all active:scale-95 flex items-center gap-2 sm:gap-3 mx-auto">
+                        <i class="fas fa-heart animate-ping text-pink-200"></i>
+                        <span>إرسال قبلات وحب لا ينتهي! 💋</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- FOOTER -->
+        <footer class="text-center text-[11px] sm:text-xs text-gray-400 my-6">
+            <p>تم تصميم هذا الموقع بكل حب من محمود للدكتورة مريم بمناسبة احتفالهما الشهري ✨</p>
+            <p class="mt-1 font-mono text-[10px] sm:text-xs">25-05-2024 ❤️ 27-05-2024 ❤️ 25-11-2026</p>
+        </footer>
+
+    </div>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        // --- 1. COUNTER LOGIC (From 25-05-2024) ---
+        const startDate = new Date('2024-05-25T00:00:00');
+
+        function updateLoveCounter() {
+            const now = new Date();
+            const diff = now - startDate;
+
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+            const minutes = Math.floor((diff / 1000 / 60) % 60);
+            const seconds = Math.floor((diff / 1000) % 60);
+
+            document.getElementById('days').innerText = days;
+            document.getElementById('hours').innerText = hours < 10 ? '0' + hours : hours;
+            document.getElementById('minutes').innerText = minutes < 10 ? '0' + minutes : minutes;
+            document.getElementById('seconds').innerText = seconds < 10 ? '0' + seconds : seconds;
+        }
+        setInterval(updateLoveCounter, 1000);
+        updateLoveCounter();
+
+
+        // --- 2. CARD FLIP LOGIC (Story Card) ---
+        function toggleStoryFlip(cardElement) {
+            const innerCard = document.getElementById('storyCardInner');
+            innerCard.classList.toggle('flip-card-flipped');
+        }
+
+
+        // --- 3. LOVE REASON GENERATOR ---
+        const loveReasons = [
+            "بحبك عشان ضحكتك وكلمة 'Me too 😂' بتنور ألمع وأحلى أنوار في دنيتي كلها! ✨",
+            "بحبك عشان طموحك وإصرارك إنك تكوني أعظم دكتورة بيكبرك في نظري كل يوم! 🩺",
+            "بحبك عشان فاضلنا شهر ونكمل سنتين ونصف مع بعض وكل يوم بحبك أكتر من اللي قبله! ❤️",
+            "بحبك عشان في أصعب أوقات تالتة ثانوي بتعرفي تصبريني وتهوني عليا! 📚",
+            "بحبك عشان إنتي الشخص الوحيد اللي على طبيعتي معاه وبحس بجمال الحياة جمبه! 🌸",
+            "بحبك عشان كلمة 'أضحكك؟ بحبك' يوم 27 كانت أحلى بداية لأجمل حكاية حب في حياتي! ⚡",
+            "بحبك عشان أنتي مش بس حبيبتي.. أنتي دكتورتي وسندي وأجمل أخت وصديقة! 💖"
+        ];
+
+        function generateLoveReason() {
+            const reasonBox = document.getElementById('loveReasonBox');
+            const randomIndex = Math.floor(Math.random() * loveReasons.length);
+            
+            reasonBox.style.opacity = 0;
+            setTimeout(() => {
+                reasonBox.innerText = loveReasons[randomIndex];
+                reasonBox.style.opacity = 1;
+            }, 200);
+
+            confetti({
+                particleCount: window.innerWidth < 768 ? 15 : 25,
+                spread: 50,
+                origin: { y: 0.7 }
+            });
+        }
+
+
+        // --- 4. LOVE EXPLOSION BUTTON ---
+        function triggerLoveExplosion() {
+            const defaults = {
+                spread: 360,
+                ticks: 80,
+                gravity: 0.8,
+                decay: 0.94,
+                startVelocity: window.innerWidth < 768 ? 20 : 30,
+                shapes: ['heart'],
+                colors: ['#ff0000', '#ff69b4', '#ff1493', '#e8c39e']
+            };
+
+            confetti({
+                ...defaults,
+                particleCount: window.innerWidth < 768 ? 30 : 50,
+                scalar: 2
+            });
+
+            playCuteTone();
+        }
+
+
+        // --- 5. BACKGROUND HEART PARTICLES (Responsive Canvas Engine) ---
+        const canvas = document.getElementById('heartCanvas');
+        const ctx = canvas.getContext('2d');
+
+        let hearts = [];
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        class Heart {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = canvas.height + Math.random() * 100;
+                this.size = Math.random() * (window.innerWidth < 768 ? 10 : 15) + 6;
+                this.speedY = Math.random() * 1.2 + 0.4;
+                this.opacity = Math.random() * 0.7 + 0.3;
+                this.color = `hsla(${Math.random() * 30 + 330}, 100%, 75%, ${this.opacity})`;
+            }
+
+            update() {
+                this.y -= this.speedY;
+                this.x += Math.sin(this.y * 0.01) * 0.5;
+                if (this.y < -20) {
+                    this.y = canvas.height + 20;
+                    this.x = Math.random() * canvas.width;
+                }
+            }
+
+            draw() {
+                ctx.save();
+                ctx.translate(this.x, this.y);
+                ctx.fillStyle = this.color;
+                ctx.beginPath();
+                ctx.moveTo(0, 0);
+                ctx.bezierCurveTo(-this.size / 2, -this.size / 2, -this.size, this.size / 3, 0, this.size);
+                ctx.bezierCurveTo(this.size, this.size / 3, this.size / 2, -this.size / 2, 0, 0);
+                ctx.fill();
+                ctx.restore();
+            }
+        }
+
+        function initHearts() {
+            hearts = [];
+            const count = Math.floor(window.innerWidth / (window.innerWidth < 768 ? 30 : 20));
+            for (let i = 0; i < count; i++) {
+                hearts.push(new Heart());
+            }
+        }
+        initHearts();
+
+        function animateHearts() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            hearts.forEach(heart => {
+                heart.update();
+                heart.draw();
+            });
+            requestAnimationFrame(animateHearts);
+        }
+        animateHearts();
+
+
+        // --- 6. AUDIO TONE SYNTHESIZER ---
+        let audioCtx = null;
+        let isPlayingMusic = false;
+        let musicInterval = null;
+
+        function playCuteTone() {
+            try {
+                if (!audioCtx) {
+                    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(523.25, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.3);
+
+                gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.3);
+
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.3);
+            } catch (e) {}
+        }
+
+        const notes = [261.63, 329.63, 392.00, 523.25, 440.00, 349.23, 392.00];
+        let noteIndex = 0;
+
+        function toggleMusic() {
+            const btnText = document.getElementById('musicText');
+            const btnIcon = document.getElementById('musicIcon');
+
+            if (!isPlayingMusic) {
+                isPlayingMusic = true;
+                btnText.innerText = "النغمات تعمل ✨";
+                btnIcon.classList.add('animate-spin');
+
+                if (!audioCtx) {
+                    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+
+                musicInterval = setInterval(() => {
+                    if (audioCtx && isPlayingMusic) {
+                        const osc = audioCtx.createOscillator();
+                        const gain = audioCtx.createGain();
+
+                        osc.type = 'triangle';
+                        osc.frequency.setValueAtTime(notes[noteIndex], audioCtx.currentTime);
+
+                        gain.gain.setValueAtTime(0.04, audioCtx.currentTime);
+                        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.8);
+
+                        osc.connect(gain);
+                        gain.connect(audioCtx.destination);
+
+                        osc.start();
+                        osc.stop(audioCtx.currentTime + 0.8);
+
+                        noteIndex = (noteIndex + 1) % notes.length;
+                    }
+                }, 600);
+            } else {
+                isPlayingMusic = false;
+                clearInterval(musicInterval);
+                btnText.innerText = "النغمات الرومانسية";
+                btnIcon.classList.remove('animate-spin');
+            }
+        }
+
+        document.getElementById('musicToggleBtn').addEventListener('click', toggleMusic);
+
+    </script>
+</body>
+</html>
